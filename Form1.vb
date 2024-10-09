@@ -46,27 +46,41 @@ Public Class frmMain
         ' Enviar el cobro
         Dim CobroEnviado As Boolean = Await Clase.EnviarCobro(userID, externalStoreId, externalId, token, Monto)
         If CobroEnviado Then
-
+            Await cls.EliminarNotificacion()
 
             timeProceso.Enabled = True
             lblProceso.Visible = True
+            Dim link As String = Await cls.ObtenerNotificacion()
 
-            Dim SePago As Boolean = Await cls.VerificarEstadoPagoAsync(userID, externalId, token)
-            If SePago Then
-                If lblProceso.Text <> "PAGO CANCELADO" Then
-                    timeProceso.Enabled = False
-                    lblProceso.ForeColor = Color.Green
-                    lblProceso.Text = "Pago completado con éxito"
+            If link <> "" Then
+
+
+                Dim label As String = Await cls.ResultadoOrden(link, token)
+
+                If label <> "" Then
+
+                    If label = "approved" Then
+                        timeProceso.Enabled = False
+                        lblProceso.ForeColor = Color.Green
+                        lblProceso.Text = "Pago realizado con exito"
+
+                    ElseIf label = "rejected" Then
+                        timeProceso.Enabled = False
+                        lblProceso.ForeColor = Color.Red
+                        lblProceso.Text = "Pago rechazado"
+                    End If
+
+                    txtMonto.Enabled = True
+                    txtMonto.Text = ""
+                Else
+                    lblProceso.ForeColor = Color.Red
+                    lblProceso.Text = "Error al verificar el estado del pago."
                 End If
-                txtMonto.Enabled = True
-                txtMonto.Text = ""
-            Else
-                lblProceso.ForeColor = Color.Red
-                lblProceso.Text = "Error al verificar el estado del pago."
             End If
-        Else
-            MessageBox.Show("Error al enviar el cobro.")
+
         End If
+
+
     End Sub
 
     Private Async Sub btnCancelarPago_Click(sender As Object, e As EventArgs) Handles btnCancelarPago.Click

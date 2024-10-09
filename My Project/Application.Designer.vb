@@ -32,7 +32,8 @@ Namespace My
 
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()> _
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Global.PryMPQR.Form1
+            Me.MainForm = Global.PryMPQR.frmMain
+
         End Sub
     End Class
 End Namespace
